@@ -1,12 +1,94 @@
-h1,h2,h3,h4,h5,h6,p {
-    font-family: 'Vazir';
+:root {
+  --lr-padding: 18%;
+  --border-radius: 8px;
+  --primary-color-active: #ffa962;
+  --primary-color-inactive: #ffd1ac;
+  --secondary-color: #fffcf9;
+  --anim-duration: 300ms;
+  font-size: 20px;
+}
+
+.main-container h1,h2,h3,h4,h5,h6,p,a {
+    font-family: 'Vazir', monospace !important;
     direction: rtl;
+}
+
+a { 
+  color: var(--primary-color-active);
+  text-decoration: none;
+}
+
+a:hover { 
+  color: var(--primary-color-active);
+  text-decoration: underline;
 }
 
 .main-container {
     padding-top: 1rem;
-    padding-right: 25%;
-    padding-left: 25%;
+    padding-right: var(--lr-padding);
+    padding-left: var(--lr-padding);
+}
+
+@media screen and (max-width: 768px) {
+  :root {
+    --lr-padding: 10%;
+  }
+}
+
+@media screen and (max-width: 375px) {
+  :root {
+    --lr-padding: 5%;
+  }
+}
+
+.main-container p {
+  text-align: justify;
+}
+
+.main-container blockquote p {
+  --h-space: 10px;
+  --v-space: 4px;
+
+  margin: 0 calc(var(--h-space) * 3) 30px calc(var(--h-space) * 3);
+  padding-right: var(--h-space);
+  padding-left: var(--h-space);
+  padding-top: var(--v-space);
+  padding-bottom: var(--v-space);
+  
+  background-color: #e7e7e7;
+  border-radius: var(--border-radius);
+  
+  border-right: var(--primary-color-inactive) solid 5px;
+  transition: border-right var(--anim-duration);
+}
+
+.main-container blockquote p:hover {
+  border-right-color: var(--primary-color-active);
+}
+
+.main-container p code {
+  background-color: #f1f1f1;
+  padding-right: 6px;
+  padding-left: 6px;
+  direction: ltr;
+}
+
+.playground-button {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  background-color: var(--primary-color-active);
+  padding: 0px 5px 0px 5px;
+  border-bottom-left-radius: var(--border-radius);
+}
+
+.playground-button a {
+  color: white;
+  margin: 0;
+  font-size: 0.8rem;
+}
+.playground-button a:hover {
+  text-decoration: none;
 }
 
 /* Generated with http://k88hudson.github.io/syntax-highlighting-theme-generator/www */
@@ -24,7 +106,7 @@ h1,h2,h3,h4,h5,h6,p {
 pre[class*="language-"],
 code[class*="language-"] {
   color: #5c6e74;
-  font-size: 13px;
+  font-size: 1rem;
   text-shadow: none;
   font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
   direction: ltr;
@@ -58,13 +140,13 @@ pre[class*="language-"] {
   padding: 0.8em;
   margin: .5em 0;
   overflow: auto;
-  background: #fffcf9;
-  border-radius: 5px;
-  border: 1px solid #ffd1ac;
-  transition: border 300ms;
+  background: var(--secondary-color);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--primary-color-inactive);
+  transition: border var(--anim-duration);
 }
 pre[class*="language-"]:hover {
-    border: 1px solid #ffa962;
+    border: 1px solid var(--primary-color-active);
 }
 
 :not(pre) > code[class*="language-"] {

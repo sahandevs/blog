@@ -45,7 +45,7 @@ module.exports = {
       options: {
         custom: {
           families: ["Vazir"],
-          urls: ["./statics/fonts/fonts.css"],
+          urls: ["./fonts/font.css"],
         },
       },
     },
