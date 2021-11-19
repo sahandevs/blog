@@ -29,6 +29,10 @@ a:hover {
     padding-left: var(--lr-padding);
 }
 
+.main-container img {
+  width: 100%;
+}
+
 @media screen and (max-width: 768px) {
   :root {
     --lr-padding: 10%;
@@ -38,6 +42,9 @@ a:hover {
 @media screen and (max-width: 375px) {
   :root {
     --lr-padding: 5%;
+  }
+  .main-container blockquote {
+    margin: 0px
   }
 }
 

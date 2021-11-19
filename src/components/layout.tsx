@@ -30,6 +30,11 @@ function processRustCode(code: string): { preview: string, full: string } {
 
 /* eslint-disable */
 const component = {
+  img: (props) => {
+    return (
+      <img {...props} src={`./images/${props.src}`}/>
+    )
+  },
   pre: (props) => {
     const className = props.children.props.className || "";
     const matches = className.match(/language-(?<lang>.*)/);
@@ -57,8 +62,10 @@ const component = {
         language={lang}
       >
         {({ className, style, tokens, getLineProps, getTokenProps }) => (
-          <pre className={className} style={{ ...style, position: "relative" }}>
-            {gotoPlaygroundButton}
+          <div style={{position: "relative"}}>
+          {gotoPlaygroundButton}
+          <pre className={className} style={style}>
+            
             {tokens.map((line, i) => (
               <div {...getLineProps({ line, key: i })}>
                 {line.map((token, key) => (
@@ -67,6 +74,8 @@ const component = {
               </div>
             ))}
           </pre>
+
+          </div>
         )}
       </Highlight>
     );
