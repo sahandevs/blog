@@ -32,7 +32,7 @@ function processRustCode(code: string): { preview: string, full: string } {
 const component = {
   img: (props) => {
     return (
-      <img {...props} src={`./images/${props.src}`}/>
+      <img {...props} src={`/images/${props.src}`} loading="lazy" />
     )
   },
   pre: (props) => {
