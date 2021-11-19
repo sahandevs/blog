@@ -8,12 +8,12 @@ function generateRustPlaygroundLink(code: string): string {
   return start + encodeURIComponent(code);
 }
 
-function processRustCode(code: string): { preview: string, full: string } {
+function processRustCode(code: string): { preview: string; full: string } {
   let full = "";
   let preview = "";
   let in_hide = false;
   for (const line of code.split("\n")) {
-    if (line == "// <hide>" || line == "// </hide>" ) {
+    if (line == "// <hide>" || line == "// </hide>") {
       in_hide = !in_hide;
       continue;
     }
@@ -25,15 +25,24 @@ function processRustCode(code: string): { preview: string, full: string } {
   return {
     full: full.trim(),
     preview: preview.trim(),
-  }
+  };
 }
 
 /* eslint-disable */
 const component = {
   img: (props) => {
+    const [alt, options] = (props.alt ?? "").split("#@");
+    console.log(12312, options ??  "{}");
+    const style = JSON.parse(options ??  "{}");
     return (
-      <img {...props} src={`/images/${props.src}`} loading="lazy" />
-    )
+      <img
+        {...props}
+        style={style}
+        alt={alt}
+        src={`/images/${props.src}`}
+        loading="lazy"
+      />
+    );
   },
   pre: (props) => {
     const className = props.children.props.className || "";
@@ -49,7 +58,9 @@ const component = {
     if (lang == "rust") {
       gotoPlaygroundButton = (
         <div className="playground-button">
-          <a target="_blank" href={generateRustPlaygroundLink(code.full)}>{"Rust Playground"}</a>
+          <a target="_blank" href={generateRustPlaygroundLink(code.full)}>
+            {"Rust Playground"}
+          </a>
         </div>
       );
     }
@@ -62,19 +73,17 @@ const component = {
         language={lang}
       >
         {({ className, style, tokens, getLineProps, getTokenProps }) => (
-          <div style={{position: "relative"}}>
-          {gotoPlaygroundButton}
-          <pre className={className} style={style}>
-            
-            {tokens.map((line, i) => (
-              <div {...getLineProps({ line, key: i })}>
-                {line.map((token, key) => (
-                  <span {...getTokenProps({ token, key })} />
-                ))}
-              </div>
-            ))}
-          </pre>
-
+          <div style={{ position: "relative" }}>
+            {gotoPlaygroundButton}
+            <pre className={className} style={style}>
+              {tokens.map((line, i) => (
+                <div {...getLineProps({ line, key: i })}>
+                  {line.map((token, key) => (
+                    <span {...getTokenProps({ token, key })} />
+                  ))}
+                </div>
+              ))}
+            </pre>
           </div>
         )}
       </Highlight>
