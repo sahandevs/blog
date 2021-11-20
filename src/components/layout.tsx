@@ -32,16 +32,17 @@ function processRustCode(code: string): { preview: string; full: string } {
 const component = {
   img: (props) => {
     const [alt, options] = (props.alt ?? "").split("#@");
-    console.log(12312, options ??  "{}");
-    const style = JSON.parse(options ??  "{}");
+    const style = JSON.parse(options ?? "{}");
     return (
-      <img
-        {...props}
-        style={style}
-        alt={alt}
-        src={`/images/${props.src}`}
-        loading="lazy"
-      />
+      <div className="img-container">
+        <img
+          {...props}
+          style={style}
+          alt={alt}
+          src={`/images/${props.src}`}
+          loading="lazy"
+        />
+      </div>
     );
   },
   pre: (props) => {
@@ -90,9 +91,12 @@ const component = {
     );
   },
   p: (props) => {
-    if (!Array.isArray(props.children)) return <p {...props} />;
+    if (!Array.isArray(props.children))
+      return <div className="text" {...props} />;
+    
     const children = [];
     let key = 0;
+
     for (const child of props.children) {
       if (typeof child === "string") {
         children.push(child);
@@ -107,7 +111,11 @@ const component = {
       }
       key++;
     }
-    return <p {...props}>{children}</p>;
+    return (
+      <div {...props} className="text">
+        {children}
+      </div>
+    );
   },
 };
 

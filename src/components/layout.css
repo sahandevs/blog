@@ -8,9 +8,14 @@
   font-size: 20px;
 }
 
-.main-container h1,h2,h3,h4,h5,h6,p,a {
+.main-container h1,h2,h3,h4,h5,h6,p,a,em,.text {
     font-family: 'Vazir', monospace !important;
+    line-height: 1.6;
     direction: rtl;
+}
+
+.main-container p {
+  margin: 0;
 }
 
 a { 
@@ -37,6 +42,10 @@ a:hover {
   margin-right: auto;
 }
 
+.main-container .img-container {
+  max-width: 100%;
+}
+
 @media screen and (max-width: 768px) {
   :root {
     --lr-padding: 10%;
@@ -48,19 +57,28 @@ a:hover {
     --lr-padding: 5%;
   }
   .main-container blockquote {
-    margin: 0px
+    margin: 25px 0 0 0; 
   }
+  .main-container img {
+    max-width: 170%;
+    vertical-align: top;
+  }
+
+  .main-container .img-container {
+    overflow-x: auto;
+  }
+
 }
 
-.main-container p {
+.main-container p,.text {
   text-align: justify;
 }
 
-.main-container blockquote p {
+.main-container blockquote .text {
   --h-space: 10px;
   --v-space: 4px;
 
-  margin: 0 calc(var(--h-space) * 3) 30px calc(var(--h-space) * 3);
+  margin: 25px calc(var(--h-space) * 3) 30px calc(var(--h-space) * 3);
   padding-right: var(--h-space);
   padding-left: var(--h-space);
   padding-top: var(--v-space);
@@ -73,15 +91,20 @@ a:hover {
   transition: border-right var(--anim-duration);
 }
 
-.main-container blockquote p:hover {
+.main-container blockquote .text:hover {
   border-right-color: var(--primary-color-active);
 }
 
-.main-container p code {
+.text {
+  /* margin-top: 10px; */
+}
+
+.main-container code {
   background-color: #f1f1f1;
+  border-radius: var(--border-radius);
   padding-right: 6px;
   padding-left: 6px;
-  direction: ltr;
+  direction: ltr !important;
 }
 
 .playground-button {
