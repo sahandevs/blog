@@ -8,10 +8,15 @@
   font-size: 20px;
 }
 
-.main-container h1,h2,h3,h4,h5,h6,p,a,em,.text {
+.main-container h1,h2,h3,h4,h5,h6,p,a,em,.text,.footnotes {
     font-family: 'Vazir', monospace, 'Source Code Pro' !important;
     line-height: 1.6;
     direction: rtl;
+}
+
+.footnotes li {
+  font-size: 0.8rem;
+  color: #5c6e74;
 }
 
 .main-container p {
@@ -95,8 +100,8 @@ a:hover {
   border-right-color: var(--primary-color-active);
 }
 
-.text {
-  /* margin-top: 10px; */
+.resources .text {
+  direction: ltr;
 }
 
 .main-container code {

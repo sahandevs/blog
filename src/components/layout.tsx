@@ -1,6 +1,7 @@
 import * as React from "react";
 import { MDXProvider } from "@mdx-js/react";
 import Highlight, { defaultProps } from "prism-react-renderer";
+import { Note, Notes, FootNotesContext } from "./footnote";
 import "./layout.css";
 
 function generateRustPlaygroundLink(code: string): string {
@@ -30,6 +31,8 @@ function processRustCode(code: string): { preview: string; full: string } {
 
 /* eslint-disable */
 const component = {
+  Note,
+  Notes,
   img: (props) => {
     const [alt, options] = (props.alt ?? "").split("#@");
     const style = JSON.parse(options ?? "{}");
@@ -91,13 +94,15 @@ const component = {
     );
   },
   p: (props) => {
-    if (!Array.isArray(props.children))
-      return <div className="text" {...props} />;
-    
+    let propChildren = props.children;
+    if (!Array.isArray(propChildren)) {
+      propChildren = [propChildren];
+    }
+
     const children = [];
     let key = 0;
 
-    for (const child of props.children) {
+    for (const child of propChildren) {
       if (typeof child === "string") {
         children.push(child);
       } else {
@@ -120,9 +125,18 @@ const component = {
 };
 
 export default function ({ children }) {
+  const [notes, setNotes] = React.useState([]);
+  // Update footnotes in HMR:
+  React.useLayoutEffect(() => {
+    requestAnimationFrame(() => {
+      setNotes([]);
+    });
+  });
   return (
     <div className="main-container">
-      <MDXProvider components={component}>{children}</MDXProvider>
+      <FootNotesContext.Provider value={{ notes }}>
+        <MDXProvider components={component}>{children}</MDXProvider>
+      </FootNotesContext.Provider>
     </div>
   );
 }
