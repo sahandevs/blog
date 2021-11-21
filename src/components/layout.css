@@ -9,7 +9,7 @@
 }
 
 .main-container h1,h2,h3,h4,h5,h6,p,a,em,.text {
-    font-family: 'Vazir', monospace !important;
+    font-family: 'Vazir', monospace, 'Source Code Pro' !important;
     line-height: 1.6;
     direction: rtl;
 }
@@ -142,7 +142,7 @@ code[class*="language-"] {
   color: #5c6e74;
   font-size: 1rem;
   text-shadow: none;
-  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  font-family: 'Source Code Pro', 'Andale Mono', 'Ubuntu Mono', monospace;
   direction: ltr;
   text-align: left;
   white-space: pre;
