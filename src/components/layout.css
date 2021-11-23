@@ -8,7 +8,7 @@
   font-size: 20px;
 }
 
-.main-container h1,h2,h3,h4,h5,h6,p,a,em,.text,.footnotes {
+.main-container h1,h2,h3,h4,h5,h6,p,a,em,.text,.footnotes,li,ul {
     font-family: 'Vazir', monospace, 'Source Code Pro' !important;
     line-height: 1.6;
     direction: rtl;
