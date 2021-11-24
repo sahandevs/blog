@@ -83,5 +83,51 @@ origin همان ابتدای روز است،
 نمونه پیاده سازی این الگوریتم در زبان Rust:
 
 ```rust
-/// TODO: test
+// <hide>
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+// </hide>
+
+struct Rule {
+    time_duration: Duration,
+    rate: usize,
+}
+
+type Log = Vec<u128>;
+
+fn is_rate_limited(current_time: SystemTime, rule: &Rule, log: &mut Log) -> bool {
+    let current_timestamp = current_time.duration_since(UNIX_EPOCH).unwrap().as_millis();
+    let time_duration_ms = rule.time_duration.as_millis();
+    // cleanup
+    let mut logs_to_pop = 0;
+    for timestamp in log.iter() {
+        if *timestamp < current_timestamp - time_duration_ms {
+            logs_to_pop += 1;
+        }
+    }
+    log.drain(0..logs_to_pop);
+    // append
+    log.push(current_timestamp);
+
+    log.len() > rule.rate
+}
+
+// <hide>
+fn main() {
+    let rule = &Rule {
+        time_duration: Duration::from_secs(5),
+        rate: 5,
+    };
+    let mut current_time = SystemTime::now();
+    let state = &mut Vec::new();
+
+    for _ in 1..=5 {
+        assert_eq!(is_rate_limited(current_time, rule, state), false);
+        current_time += Duration::from_secs(1);
+    }
+    assert_eq!(is_rate_limited(current_time, rule, state), true);
+    current_time += Duration::from_secs(2);
+    assert_eq!(is_rate_limited(current_time, rule, state), false);
+    assert_eq!(is_rate_limited(current_time, rule, state), true);
+}
+// </hide>
 ```
