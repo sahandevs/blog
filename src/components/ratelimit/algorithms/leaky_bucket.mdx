@@ -1,0 +1,109 @@
+### الگوریتم Leaky Bucket
+
+در این الگوریتم درخواست ها قبل از پردازش شدن وارد یک صف می‌شن و منتظر می‌مونن.
+این صف یک ظرفیت داره
+(rate)
+که اگر درخواست جدید اومد و صف پر بود، 
+درخواست بلاک می‌شه.
+از این صف هر `t / rate` ثانیه <Note>یا هر واحد زمانی دیگر</Note>
+یک المان کم میشه تا وقتی که صف خالی بشه.
+
+![leaky bucket#@{"maxWidth": 350}](ratelimit_leaky_bucket.png)
+
+این الگوریتم جدا از اینکه می‌تونه برای 
+rate limit
+کردن استفاده بشه، ‌می‌تونه به عنوان یک کنترل کننده جریان هم استفاده بشه
+که درخواست ها با یک نرخ ثابت و کنترل شده انجام بشن.
+
+یک نمونه پیاده سازی این الگوریتم به صورت async در زبان Rust:
+
+```rust
+// <hide>
+use std::{
+    sync::Arc,
+    time::{Duration, Instant},
+};
+use tokio::{
+    sync::{oneshot, Mutex},
+    time::sleep,
+};
+
+struct Waiter(oneshot::Receiver<()>);
+impl Waiter {
+    async fn wait_in_queue(self) {
+        self.0.await.unwrap();
+    }
+}
+type RequestResumer = oneshot::Sender<()>;
+
+#[derive(Clone)]
+// </hide>
+struct Rule {
+    time_duration: Duration,
+    rate: u32,
+}
+
+type Request = (RequestResumer, Waiter);
+type Bucket = Arc<Mutex<Vec<RequestResumer>>>;
+
+async fn is_rate_limited(req: Request, rule: Rule, bucket: Bucket) -> bool {
+    let mut lock = bucket.lock().await;
+    if lock.len() == rule.rate as _ {
+        return false;
+    }
+    let (req, waiter) = req;
+    lock.push(req);
+    drop(lock);
+    waiter.wait_in_queue().await;
+    return true;
+}
+
+async fn leak(rule: Rule, bucket: Bucket) {
+    loop {
+        sleep(rule.time_duration / rule.rate).await;
+        {
+            let mut lock = bucket.lock().await;
+            if lock.len() == 0 {
+                continue;
+            }
+            if let Some(x) = lock.drain(0..1).next() {
+                x.send(()).unwrap();
+            };
+        }
+    }
+}
+
+// <hide>
+#[tokio::main]
+async fn main() {
+    let rule = Rule {
+        rate: 5,
+        time_duration: Duration::from_secs(5),
+    };
+    let bucket = Arc::new(Mutex::new(Vec::new()));
+    let _ = tokio::spawn(leak(rule.clone(), bucket.clone()));
+    let mut tasks = Vec::new();
+    for i in 1..=7 {
+        let rule = rule.clone();
+        let bucket = bucket.clone();
+        let task = tokio::spawn(async move {
+            println!("[start] request {}", i);
+            let chan = oneshot::channel();
+            let req = (chan.0, Waiter(chan.1));
+            let start = Instant::now();
+            let result = is_rate_limited(req, rule, bucket).await;
+            println!(
+                "[done] request {} after {:?} = {}",
+                i,
+                start.elapsed(),
+                result
+            );
+        });
+        tasks.push(task);
+    }
+    for task in tasks {
+        task.await.unwrap();
+    }
+}
+// </hide>
+```

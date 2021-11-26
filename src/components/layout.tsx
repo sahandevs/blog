@@ -5,7 +5,7 @@ import { Note, Notes, FootNotesContext } from "./footnote";
 import "./layout.css";
 
 function generateRustPlaygroundLink(code: string): string {
-  const start = "https://play.rust-lang.org/?code=";
+  const start = "https://play.rust-lang.org/?edition=2021&code=";
   return start + encodeURIComponent(code);
 }
 
