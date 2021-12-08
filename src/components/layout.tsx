@@ -3,6 +3,7 @@ import { MDXProvider } from "@mdx-js/react";
 import Highlight, { defaultProps } from "prism-react-renderer";
 import { Note, Notes, FootNotesContext } from "./footnote";
 import "./layout.css";
+import { Helmet } from "react-helmet";
 
 function generateRustPlaygroundLink(code: string): string {
   const start = "https://play.rust-lang.org/?edition=2021&code=";
@@ -33,18 +34,26 @@ function processRustCode(code: string): { preview: string; full: string } {
 const component = {
   Note,
   Notes,
+  h1: (props) => {
+    return (
+      <>
+        <h1>{props.children}</h1>
+        {/* @ts-ignore */}
+        <Helmet>
+          <meta charSet="utf-8" />
+          <title>{props.children}</title>
+          <meta property="og:title" content={props.children} />
+          <meta property="og:site_name" content="Sahand's blog" />
+        </Helmet>
+      </>
+    );
+  },
   img: (props) => {
     const [alt, options] = (props.alt ?? "").split("#@");
     const style = JSON.parse(options ?? "{}");
     return (
       <div className="img-container">
-        <img
-          {...props}
-          style={style}
-          alt={alt}
-          src={`/images/${props.src}`}
-          loading="lazy"
-        />
+        <img {...props} style={style} alt={alt} src={`/images/${props.src}`} />
       </div>
     );
   },
