@@ -10,12 +10,47 @@ function generateRustPlaygroundLink(code: string): string {
   return start + encodeURIComponent(code);
 }
 
+function getCodeMetaData(meta: string): {
+  lang: string;
+  no_playground: boolean;
+  multipart: { id: string } | undefined;
+} {
+  const parts = meta.split(",").map((x) => x.trim());
+  const lang = parts[0].split("-")[1];
+  const no_pg = parts.find((x) => x == "no_pg") != undefined;
+  let multipart = parts.find((x) => x.startsWith("multipart:"));
+  if (multipart != undefined) {
+    multipart = multipart.split(":")[1];
+  }
+
+  return {
+    lang,
+    no_playground: no_pg,
+    multipart: multipart == null ? undefined : { id: multipart },
+  };
+}
+
+let codeBank: Record<string, string[]> = {};
+
+// this is really not how I should implement this but I'm lazy :).
+function addCodeMultipart(id: string, code: string) {
+  if (codeBank[id] == null) {
+    codeBank[id] = [];
+  }
+  codeBank[id].push(code);
+}
+
+function getMultipartCode(id: string): string {
+  return codeBank[id]?.join("\n");
+}
+
 function processRustCode(code: string): { preview: string; full: string } {
   let full = "";
   let preview = "";
   let in_hide = false;
   for (const line of code.split("\n")) {
-    if (line == "// <hide>" || line == "// </hide>") {
+    const line_t = line.trim();
+    if (line_t == "// <hide>" || line_t == "// </hide>") {
       in_hide = !in_hide;
       continue;
     }
@@ -59,16 +94,13 @@ const component = {
   },
   pre: (props) => {
     const className = props.children.props.className || "";
-    const matches = className.match(/language-(?<lang>.*)/);
-    const lang =
-      matches && matches.groups && matches.groups.lang
-        ? matches.groups.lang
-        : "";
-
+    const meta = getCodeMetaData(className);
     let code = processRustCode(props.children.props.children.trim());
-
+    if (meta.multipart != null) {
+      addCodeMultipart(meta.multipart.id, code.full);
+    }
     let gotoPlaygroundButton = null;
-    if (lang == "rust") {
+    if (meta.lang.includes("rust") && !meta.no_playground) {
       gotoPlaygroundButton = (
         <div className="playground-button">
           <a target="_blank" href={generateRustPlaygroundLink(code.full)}>
@@ -83,7 +115,7 @@ const component = {
         {...defaultProps}
         theme={undefined}
         code={code.preview}
-        language={lang}
+        language={meta.lang as any}
       >
         {({ className, style, tokens, getLineProps, getTokenProps }) => (
           <div style={{ position: "relative" }}>
@@ -139,8 +171,9 @@ export default function ({ children }) {
   React.useLayoutEffect(() => {
     requestAnimationFrame(() => {
       setNotes([]);
+      codeBank = {};
     });
-  });
+  }, []);
   return (
     <div className="main-container">
       <FootNotesContext.Provider value={{ notes }}>

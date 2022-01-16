@@ -1,0 +1,193 @@
+### Mutex
+
+بیایم اول از
+[Mutex Lock](<https://en.wikipedia.org/wiki/Lock_(computer_science)>)
+استفاده کنیم که راه‌حل ساده‌ای رو به ما می‌ده تا بتونیم اهمیت این موضوع رو درک کنیم.
+
+برای سادگی موضوع،‌ در نظر بگیریم یک وب‌سرور داریم که عدد ۱ تا ۱۰۰۰ رو باید با هم جمع کنه
+و وقتی داره اینکارو می‌کنه،‌ ترد های دیگه باید منتظر این کار باشن.
+
+```rust
+// <hide>
+use parking_lot::Mutex;
+use std::sync::mpsc::{self, Sender};
+use std::sync::Arc;
+use std::thread::JoinHandle;
+use std::time::Instant;
+
+
+#[inline(never)]
+#[cold]
+// </hide>
+fn do_work(lock: &Arc<Mutex<()>>, no_lock: bool) -> usize {
+    let _lock_guard;
+    if !no_lock {
+        _lock_guard = lock.lock();
+    }
+    let mut result = 0;
+    for i in 1..=1000 {
+        result += i;
+    }
+    result
+}
+
+pub struct WebServer {
+    threads: Vec<(usize, Sender<()>, JoinHandle<usize>)>,
+}
+
+impl WebServer {
+    pub fn new(num_threads: usize, no_lock: bool) -> Self {
+        let lock = Arc::new(Mutex::new(()));
+        let threads: Vec<_> = (1..=num_threads)
+            .map(|i| {
+                let (tx, rx) = mpsc::channel::<()>();
+                let lock = Arc::clone(&lock);
+                let handle = std::thread::spawn(move || {
+                    let lock = lock;
+                    let mut total = 0;
+                    while let Ok(_) = rx.recv() {
+                        total += do_work(&lock, no_lock);
+                    }
+                    total
+                });
+                (i, tx, handle)
+            })
+            .collect();
+        WebServer { threads }
+    }
+
+    pub fn send_work(&self, num_works: usize) {
+        // --snip--
+         // <hide>
+        self.threads
+            .iter()
+            .map(|x| x.1.clone())
+            .map(|x| {
+                std::thread::spawn(move || {
+                    for _ in 1..=num_works {
+                        x.send(()).unwrap();
+                    }
+                })
+            })
+            // It's important to first collect all, then join the threads.
+            // We want all the sender threads to start together.
+            .collect::<Vec<_>>()
+            .into_iter()
+            .for_each(|x| x.join().unwrap());
+        // </hide>
+    }
+
+    pub fn shutdown(mut self) {
+        // --snip--
+        // <hide>
+        while let Some((i, sender, handle)) = self.threads.pop() {
+            drop(sender);
+            let result = handle.join().unwrap();
+            println!("[{}] total = {}", i, result);
+        }
+        // </hide>
+    }
+
+}
+
+// <hide>
+const JOBS: usize = 1_000_000;
+
+#[inline(never)]
+#[no_mangle]
+fn with_lock() {
+    let server_with_lock = WebServer::new(16, false);
+
+    let now = Instant::now();
+    server_with_lock.send_work(JOBS);
+    server_with_lock.shutdown();
+    println!("with lock took {:?}", now.elapsed());
+}
+
+#[inline(never)]
+#[no_mangle]
+fn without_lock() {
+    let server_without_lock = WebServer::new(16, true);
+    let now = Instant::now();
+    server_without_lock.send_work(JOBS);
+    server_without_lock.shutdown();
+    println!("without lock took {:?}", now.elapsed());
+}
+
+fn main() {
+    with_lock();
+    without_lock();
+}
+// </hide>
+```
+
+بیایم کد رو بازش کنیم.
+
+تابع `do_work` کار جمع کردن و لاک کردن رو برامون انجام میده.
+از ورودی یک فلگ با نام
+`no_lock`
+هم داریم میگیریم که موقع اجرا در دو حالت با لاک و بدون اون رو اجرا کنیم تا ببینیم
+اضافه کردن لاک چقدر توی پرفرمنس تاثیر گذاره.
+
+وب سرومون هم مولتی ترد هست
+که موقع ایجاد شدن میاد به تعداد خواسته شده، ترد باز میکنه و یک لاک مشترک به همشون میده.
+
+یک تابع با نام
+`send_work`
+داریم که کارش ارسال همزمان n درخواست با هم هست.
+
+در نهایت کار تابع
+`shutdown`
+اینه که مطمین بشه همه ترد های سرور کارشون تموم بشه و بعد سرور رو ببنده.
+
+> نکته مهم: موقع اجرا کد چون ما از لاک استفاده‌ی واقعی نمی‌کنیم، کامپلر راست توی پروفایل
+> `release`
+> اش میاد اونو optimize می‌کنه.
+> اگر میخواید کد رو اجرا کنید یا اونو تو حالت
+> `debug`
+> اجرا کنید یا اینکه این آپشن رو به پروفایل
+> `release`
+> اتون توی `Cargo.toml`
+> اضافه کنید: `opt-level = 2`
+
+اجرا کنیم و نتیجش رو ببینیم:
+
+```shell
+$ cargo run --release
+with lock took 20.474073198s
+without lock took 3.526799261s
+```
+
+نتیجه ممکنه توی سیستم شما متفاوت باشه ولی چیزی که مشخص هست اینه که نسخه بدون لاک چندین برابر سریع‌تر هست و تاثیر زیادی
+میتونه روی پرفرمنس بزاره.
+
+برای اینکه مطمین بشیم که خود عملیات لاک کردن داره روی پرفرمنس تاثیر میزاره میتونیم با استفاده از ابزار
+[cargo-flamegraph](https://github.com/flamegraph-rs/flamegraph)
+نمودار
+flamegraph
+اونو ایجاد کنید.
+
+```shell
+$ cargo flamegraph -c 'perf record -F 997 --call-graph dwarf -g'
+
+[ perf record: Woken up 3009 times to write data ]
+Warning:
+Processed 218901 events and lost 4 chunks!
+
+Check IO/CPU overload!
+
+[ perf record: Captured and wrote 759.438 MB perf.data (92749 samples) ]
+writing flamegraph to "flamegraph.svg
+
+$ open flamegraph.svg
+```
+
+![mutex flamegraph](ratelimit_mutex_flamegraph.png)
+
+قسمت آبی، عملیات مربوط به لاک کردن مثل منتظر موندن و آنلاک شدن رو نشون میده که میبینیم حجم زیادی از زمان برنامه رو اینکار گرفته.
+
+> برای دیدن نسخه interactive و کامل نمودار بالا،
+> [اینجا](/images/ratelimit_mutex_flamegraph.svg)
+> را کلیک کنید.
+
+TODO: ارزششو داره بریم به راه حل های دیگه نگاه بندازیم.
