@@ -86,9 +86,13 @@ const component = {
   img: (props) => {
     const [alt, options] = (props.alt ?? "").split("#@");
     const style = JSON.parse(options ?? "{}");
+    let src = props.src;
+    if (!src.startsWith("http")) {
+      src = `/images/${src}`;
+    }
     return (
       <div className="img-container">
-        <img {...props} style={style} alt={alt} src={`/images/${props.src}`} />
+        <img {...props} style={style} alt={alt} src={src} />
       </div>
     );
   },

@@ -1,25 +1,91 @@
 # V8 چیه و چطور کار می‌کنه؟
-V8 یک موتور برای اجرای جاوااسکریپت و وب‌اسمبلی هست که 
-در نرم‌افزار های مختلفی مثل 
+
+![TODO: image here motorcycle with v8 on it and js logo riding it?]()
+
+V8 یک موتور برای اجرای جاوااسکریپت و وب‌اسمبلی هست که
+در نرم‌افزار های مختلفی مثل
 Google chrome
 و
 nodejs
 استفاده می‌شه. این موتور پرفرمنس خیلی بالایی داره و دلیلش خلاقیت و تکنولوژی های جالبی هست که توش استفاده کردن.
 هدف این پست اینه که بیاد این پروژه رو معرفی کنه و تا حد خوبی به جزئیات اینکه چطور کار می‌کنه٬ بپردازه.
 
-TODO: مسیر یک کد جاوا اسکریپت
+بیایم اسکریپت زیر رو در نظر بگیریم و ببینیم
+وقتی به v8 میدیمش٬ باهاش چی‌کار می‌کنه.
 
-Ignition: an interpreter for V8 (video)
+```js
+function salam() {
+  const b = "hello";
+  console.log(b);
+}
 
-## پارس کردن
+function askAge() {
+  let age = prompt("how old are you?");
+  age = parseInt(age);
+  return age;
+}
 
-## Ignition Interpreter
+function validate(age) {
+  if (age < 18) {
+    console.log(`you are under age, come back ${18 - age} years later`);
+  } else {
+    console.log("hello");
+  }
+}
+
+salam();
+var age = askAge();
+validate(age);
+```
+
+اسکریپت بالا کارش اینه که به کاربر سلام کنه، سنش رو بپرسه و اگر سنش از ۱۸ سال کمتر بود٬ پیام خطا بده.
+
+## مرحله اول - تولید Abstract Syntax Tree
+
+برای اینکه بشه یک کد جاوااسکریپت رو اجرا کرد٬ باید اول کد اونو به یک فرمت مخصوصی تبدیل کنیم که موتور
+v8 راحت‌تر بتونه باهاش کار کنه.
+این فرمت Abstract Syntax Tree یا AST هست که نشون دهنده ساختار اصلی کد هست و همه داده های اضافه مثل کامنت
+و اسپیس از اون حذف شده.
+AST کد خودمون همچین چیزی هست:
+
+![TODO: create ast for the example code](https://raw.githubusercontent.com/mdevils/cst/master/docs/cst-example.png)
+
+برای این‌که V8 این AST رو تولید کنه٬
+مراحل زیر رو انجام بده:
+
+![TODO: ](https://v8.dev/_img/scanner/overview.svg)
+
+بریم ببینیم هر مرحله‌اش داره چیکار می‌کنه.
+
+> توی V8 چون تا وقتی AST
+> نداشته باشیم نمی‌تونیم هیچکاری انجام بدیم٬
+> V8 میاد AST رو به صورت streaming تولید می‌کنه.
+> خیلی ساده یعنی مثلا توی کد بالا٬ وقتی تمام کاراکتر های مورد نیازش برای تابع اول رو دریافت کرد
+> یک Node توی AST ایجاد می‌کنه و اونو بر میگردونه ولی می‌گه هنوز کارش تموم نشده.
+> اینطوری V8 میتونه مثلا تابع اول رو اجرا کنه با اینکه هنوز بقیه کد رو
+> parse نکرده.
+
+### Scanner ـ [^1]
+
+چی هست و چطور کار میکنه
+
+قسمت های خاص v8 اش:
+
+#### Whitespace
+
+#### identifier scanning
+
+#### Internalizing minified identifiers
+
+#### Keywords
+
+#### Surrogate pairs
+خودش داستانی داره ولی یک توضیح کوتاه اینجا بد نیست.
 
 
-idea:
+### Parser
 
-## تمام استپ های کلی که یک اسکریپت طی میکنه
+[^1]: https://v8.dev/blog/scanner
 
-## وارد شدن به جزییات هر استپ (شاید بهتر باشه برای این قسمت هرکدوم یک پارت دیگه باشن.)
-
-[^1]: https://www.youtube.com/watch?v=xckH5s3UuX4&ab_channel=freeCodeCampTalks
+<!-- [^1]: https://www.youtube.com/watch?v=xckH5s3UuX4&ab_channel=freeCodeCampTalks -->
+<!-- [^2]: https://pwnbykenny.com/en/2020/06/30/v8-architectures-and-build-v8/ -->
