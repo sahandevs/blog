@@ -441,7 +441,26 @@ console.log(table.get("c")); // null
 > فقط ایده اصلی Hash Table رو توضیح می‌ده.
 
 دیدیم که استفاده از `HashMap` لزوما همیشه `O(1)` به مارو نمیده و نسبت به شرایط ممکنه بیشتر طول بکشه.
-بدلیل همیشه مشخص نبودن پرفرمنس `HashMap`٬ v8 از چیزی به نام Perfect Hash استفاده می‌کنه.
+بدلیل همیشه مشخص نبودن پرفرمنس `HashMap`٬ v8 از چیزی به نام [Perfect Hash Function](https://en.wikipedia.org/wiki/Perfect_hash_function) استفاده می‌کنه.
+PHF ها دسته توابع هش ای هستند که اگر ما 
+n ورودی مختلف داشته باشیم٬
+می‌تونه تابعی به ما بده که خروجیش یک عدد بین
+۱ تا n هست.
+شبه‌کد زیر رو نگاه کنید:
+
+```javascript
+let hasher = new PerfectHash(["a", "b", "c"]);
+console.log(hasher.hash("a")) // 0
+console.log(hasher.hash("b")) // 1
+console.log(hasher.hash("c")) // 2
+console.log(hasher.hash("e")) // error
+```
+
+حالا چون ما تمام keyword هامون رو می‌دونیم٬ می‌تونیم از 
+این روش استفاده کنیم و یک hash function مخصوص خودمون رو داشته باشیم.
+حالا اگر این تابع هش رو توی پیاده سازی hash table مون دخیل کنیم٬‌ 
+می‌تونیم یک lookup با هزینه زمانی بدترین حالت `O(1)` داشته باشیم٬ چون 
+هیچ‌وقت collision نخواهیم داشت.
 
 نتیجه:
 
@@ -449,13 +468,12 @@ console.log(table.get("c")); // null
 
 > لیست همه keyword های جاوااسکریپت رو می‌تونید [اینجا](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#keywords) ببینید.
 
-#### Surrogate pairs
-
-خودش داستانی داره ولی یک توضیح کوتاه اینجا بد نیست.
-
 ### Parser
 
+
+
 [^1]: https://v8.dev/blog/scanner
+[^2]: https://v8.dev/blog/preparser
 
 <!-- [^1]: https://www.youtube.com/watch?v=xckH5s3UuX4&ab_channel=freeCodeCampTalks -->
 <!-- [^2]: https://pwnbykenny.com/en/2020/06/30/v8-architectures-and-build-v8/ -->
