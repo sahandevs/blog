@@ -83,7 +83,7 @@ fn is_rate_limited(origin: Instant, current_time: Instant, rule: &Rule, state: &
     };
     let w = {
         let d = current_time - current_window_start;
-        let dp = if d > rule.time_duration { // TODO: hamo ke ebi mige
+        let dp = if d > rule.time_duration {
             Duration::ZERO
         } else {
             rule.time_duration - d
