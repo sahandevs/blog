@@ -91,9 +91,9 @@ const component = {
       src = `/images/${src}`;
     }
     return (
-      <div className="img-container">
+      <a className="img-container" href={src} target="_blank">
         <img {...props} style={style} alt={alt} src={src} />
-      </div>
+      </a>
     );
   },
   pre: (props) => {
