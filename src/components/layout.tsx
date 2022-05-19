@@ -104,7 +104,7 @@ const component = {
       addCodeMultipart(meta.multipart.id, code.full);
     }
     let gotoPlaygroundButton = null;
-    if (meta.lang.includes("rust") && !meta.no_playground) {
+    if (meta.lang && meta.lang.includes("rust") && !meta.no_playground) {
       gotoPlaygroundButton = (
         <div className="playground-button">
           <a target="_blank" href={generateRustPlaygroundLink(code.full)}>
