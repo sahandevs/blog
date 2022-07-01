@@ -103,7 +103,7 @@ const component = {
     if (meta.multipart != null) {
       addCodeMultipart(meta.multipart.id, code.full);
     }
-    let gotoPlaygroundButton = null;
+    let gotoPlaygroundButton: any = null;
     if (meta.lang && meta.lang.includes("rust") && !meta.no_playground) {
       gotoPlaygroundButton = (
         <div className="playground-button">
@@ -144,7 +144,7 @@ const component = {
       propChildren = [propChildren];
     }
 
-    const children = [];
+    const children: any[] = [];
     let key = 0;
 
     for (const child of propChildren) {
@@ -179,10 +179,13 @@ export default function ({ children }) {
     });
   }, []);
   return (
-    <div className="main-container">
+    <div className="main-container-wrapper">
+          <div className="main-container">
       <FootNotesContext.Provider value={{ notes }}>
         <MDXProvider components={component}>{children}</MDXProvider>
       </FootNotesContext.Provider>
     </div>
+    </div>
+
   );
 }
