@@ -1,0 +1,91 @@
+.post-list-container h1,h2,h3,h4,h5,h6,p,a,em,.text,.footnotes,li,ul {
+    font-family: 'Vazir', monospace, 'Source Code Pro' !important;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+.post-list-container ul {
+    padding: 0;
+    list-style-type: circle;
+}
+
+.post-list-container li a {
+    color: rgb(18, 18, 18);
+    text-decoration-style: dotted;
+}
+
+.post-list-container li {
+    margin-top: 16px;
+}
+
+.category-container .badge {
+    background-color: var(--primary-color-active);
+    color: white;
+    padding-left: 4px;
+    padding-right: 4px;
+    border-radius: 5px;
+    margin-left: 5px;
+}
+
+
+
+.post-list-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    direction: rtl;
+    padding: 3rem;
+}
+
+.category-container {
+   width: calc(50% - 2rem);
+   margin-right: 1rem;
+   margin-left: 1rem;
+   margin-top: 2rem;
+   margin-bottom: 2rem;
+}
+
+.category-container .hr {
+    background-color: var(--primary-color-active);
+    width: 40%;
+    height: 5px;
+    margin-top: 0.1rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+}
+
+@media screen and (max-width: 425px) {
+    .category-container {
+        width: 100%
+    }
+    .post-list-container {
+        padding: 1rem;
+    }
+}
+
+.social {
+    display: flex;
+    flex-direction: row;
+    font-family: 'Source Code Pro' !important;
+    margin-top: 20px;
+    width: 100%;
+    justify-content: center;
+    font-size: 0.9rem;
+    
+}
+
+.social a {
+    color: grey !important;
+    opacity: 0.6;
+    transition: 200ms;
+}
+
+.social a:hover {
+    opacity: 1;
+}
+
+.social p {
+    margin-left: 10px;
+    margin-right: 10px;
+}
