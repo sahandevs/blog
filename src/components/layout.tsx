@@ -14,10 +14,14 @@ function getCodeMetaData(meta: string): {
   lang: string;
   no_playground: boolean;
   multipart: { id: string } | undefined;
+  button: [string, string] | undefined;
 } {
   const parts = meta.split(",").map((x) => x.trim());
   const lang = parts[0].split("-")[1];
   const no_pg = parts.find((x) => x == "no_pg") != undefined;
+  const btn = parts
+    .filter((x) => x.startsWith("btn"))
+    .map((x) => x.substring(4, x.length - 1).split("|"))[0];
   let multipart = parts.find((x) => x.startsWith("multipart:"));
   if (multipart != undefined) {
     multipart = multipart.split(":")[1];
@@ -27,6 +31,7 @@ function getCodeMetaData(meta: string): {
     lang,
     no_playground: no_pg,
     multipart: multipart == null ? undefined : { id: multipart },
+    button: btn as any,
   };
 }
 
@@ -114,6 +119,16 @@ const component = {
       );
     }
 
+    if (meta.button) {
+      gotoPlaygroundButton = (
+        <div className="playground-button">
+          <a target="_blank" href={meta.button[1]}>
+            {meta.button[0]}
+          </a>
+        </div>
+      );
+    }
+
     return (
       <Highlight
         {...defaultProps}
@@ -180,12 +195,11 @@ export default function ({ children }) {
   }, []);
   return (
     <div className="main-container-wrapper">
-          <div className="main-container">
-      <FootNotesContext.Provider value={{ notes }}>
-        <MDXProvider components={component}>{children}</MDXProvider>
-      </FootNotesContext.Provider>
+      <div className="main-container">
+        <FootNotesContext.Provider value={{ notes }}>
+          <MDXProvider components={component}>{children}</MDXProvider>
+        </FootNotesContext.Provider>
+      </div>
     </div>
-    </div>
-
   );
 }

@@ -20,6 +20,10 @@ const Categories: Posts = [
       {
         title: "Interpreter Ignition چیه و توی v8 چطوری کار می‌کنه؟ - قسمت ۳",
         link: "/v8-ignition",
+      },
+      {
+        title: "JIT Compiler چیه و چطور کار می‌کنه؟ - قسمت ۴",
+        link: "/v8-jit",
         badge: "جدیدترین",
       },
     ],
