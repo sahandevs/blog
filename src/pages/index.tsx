@@ -29,6 +29,15 @@ const Categories: Posts = [
     ],
   },
   {
+    categoryTitle: "پروژه های آخر هفته‌ای",
+    posts: [
+      {
+        title: "کنترل کردن USB Switcher با موبایل",
+        link: "/usb-switcher"
+      },
+    ],
+  },
+  {
     categoryTitle: "محدود کننده نرخ یا Ratelimit",
     posts: [
       {
