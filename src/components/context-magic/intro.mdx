@@ -13,21 +13,237 @@
 
 ## useContext داخل ری‌اکت
 
+احتمالا اگه با ری‌اکت کار کرده باشید، با Context هم آشنا هستید. اگر هم نه یک توضیح خیلی سادش اینه، فرض کنید همچین 
+چینشی برای کامپوننت هاتون دارید.
 
+```jsx
+<TopComponent>
+    <MiddleComponent1>
+        <MiddleComponent2>
+            <Inner>
+        <MiddleComponent2>
+    </MiddleComponent1>
+</TopComponent>
+```
+
+حالا فرض کنید میخواید یکسری دیتا از بالا به کامپوننت `Inner` بفرستید بدون که لازم باشه از props استفاده کنید. می‌تونید با `Provider` اونو ست کنید:
+
+```diff
++<MyContext.Provider value={{ user: "username" }}>
+    <TopComponent>
+        <MiddleComponent1>
+            <MiddleComponent2>
+                <Inner>
+            <MiddleComponent2>
+        </MiddleComponent1>
+    </TopComponent>
++</MyContext.Provider>
+```
+
+و با `useContext()` اونو پایین تر دریافت کنید:
+
+```jsx
+function Inner() {
+    const { user } = useContext(MyContext);
+    console.log(user); // username
+    // ...
+
+}
+```
+
+خب پیاده‌سازی همچین چیزی ساده بنظر می‌رسه، میتونیم مقدارشو توی یک متغییر استاتیک ذخیره کنیم و با `useContext` اونو برش گردونیم.
+توی مثال بالا این پیاده‌سازی جواب میده ولی با Context ری‌اکت میشه کارهای پیچیده‌تری کرد. مثلا میشه اونو تو در تو تعریف کرد:
+
+```jsx
+<MyContext.Provider value={{ user: "username1" }}>
+    <TopComponent>
+        <MiddleComponent1>
+            <MyContext.Provider value={{ user: "username2" }}>
+                <MiddleComponent2>
+                    <Inner>
+                <MiddleComponent2>
+            </MyContext.Provider>
+        </MiddleComponent1>
+    </TopComponent>
+</MyContext.Provider>
+```
+
+یا حتی توی شاخه‌های مختلف کامپوننت هامون ازش استفاده کرد:
+```jsx
+<>
+    <MyContext.Provider value={{ user: "username1" }}>
+        <Inner>
+    </MyContext.Provider>
+    <MyContext.Provider value={{ user: "username2" }}>
+        <Inner>
+    </MyContext.Provider>
+</>
+```
+
+که خب این قابلیت رو نمیشه با یک متغییر استاتیک ساده پیاده سازی کرد. یا حداقل نه به این سادگی‌ها! 
+می‌دونیم که توی مرورگر کد جاوااسکریپتمون سینگل‌ترد اجرا می‌شه. یعنی موازی دو تیکه از کد اجرا نمی‌شن.
+اگه توی زمان‌های درستی این متغییر استاتیک یا گلوبال رو با مقدار درستش پر بکنیم، کافیه `useContext`
+همون مقدار متغییر گلوبالمون رو برگردونه.
+
+خب مثال اولمون رو در نظر بگیرید:
+
+```jsx
+<MyContext.Provider value={{ user: "username" }}>
+    <TopComponent>
+        <MiddleComponent1>
+            <MiddleComponent2>
+                <Inner>
+            <MiddleComponent2>
+        </MiddleComponent1>
+    </TopComponent>
+</MyContext.Provider>
+```
+
+رندرر ری‌اکت میاد این درخت رو پیمایش میکنه از بالا تا پایین شروع میکنه:
+
+- به `MyContext.Provider` پس مقدار `MyContext.currentValue = { user: "username" }` میشه
+- می‌رسه به TopComponent و vdom رو می‌سازه.
+- به MiddleComponent1 می‌رسه و اونو هم رندر می‌کنه.
+- به MiddleComponent2 می‌رسه و اونو هم رندر می‌کنه.
+- در نهایت به `Inner` می‌رسه و `useContext` مقدار `MyContext.currentValue` رو برمی‌گردونه که همون `{ user: "username" }` هست.
+
+بریم به یک مثال پیچیده‌تر هم نگاه کنیم:
+
+```jsx
+<MyContext.Provider value={{ user: "username1" }}>
+    <MyContext.Provider value={{ user: "username2" }}>
+       <Inner>
+    </MyContext.Provider>
+    <Inner>
+</MyContext.Provider>
+```
+
+توی این مثال چی؟ اگه مثل قبل عمل کنیم که به `Inner` دومی مقدار `username2` می‌رسه.
+اینجاست که باید خود فریم‌ورک بهمون یک هوک بده تا بتونیم زمان خروج رندرد یک کامپوننت رو بفهمیم.
+یعنی چی؟ فرض کنید ترتیب اجرا عملیات رندرر بصورت زیر هست:
+
+```
+enter(MyContext.Provider)
+render()
+  enter(MyContext.Provider)
+  render()
+    enter(Inner)
+    render()
+    exit(Inner)
+  exit(MyContext.Provider)
+exit(MyContext.Provider)
+
+```
+
+حالا ما توی اون متغییر گلوبال اگه بیایم یک درخت درست کنیم که موقع `enter` برای هر `Context`
+اونو به درخت اضافه کنه و موقع `exit` آخرین برگ درخت رو حذف کنه، 
+اگه داخل `useContext` آخرین برگ این درخت رو بخونیم، همیشه مقدار درستی رو خواهیم داشت!
 
 ## AsyncLocalStorage داخل Nodejs
+
+```javascript
+const { AsyncLocalStorage } = require('async_hooks');
+
+const myAsyncLocalStorage = new AsyncLocalStorage();
+
+function middleware(req, res, next) {
+  myAsyncLocalStorage.run(new Map(), () => {
+    myAsyncLocalStorage.getStore().set('userId', req.headers['x-user-id']);
+    next();
+  });
+}
+
+async function requestHandler(req, res) {
+  const store = myAsyncLocalStorage.getStore();
+  const userId = store.get('userId');
+  res.send(`Hello user ${userId}`);
+}
+```
 خب توی ری‌اکت رندرینگ رو می‌دونیم که در یک لحظه فقط برای یک کامپوننت در حال اجراست، پس می‌شه توی
-زمان مناسب اون متغییر استاتیک رو با مقدار درستش پر کرد. ولی برای یک وب‌سرور توی Node
+زمان مناسب اون متغییر گلوبال رو با مقدار درستش پر کرد. ولی برای یک وب‌سرور توی Node
 که همزمان ممکنه چندین ری‌کوئست بصورت async
 در حال اجرا باشن، رو می‌تونیم چیکار کنیم.
+توی کد بالا ما اومدیم برای express که یک وب‌سرور هست، یک پلاگین نوشتیم که میاد یک هدر رو از توی ریکو‌‌ئست می‌خونه و یکجا دخیره میکنه.
+و پایین‌تر توی هندلرمون بدون اینکه مستقیم اون به ری‌کوئست داده باشیم می‌تونیم بخونیم.
+این `AsyncLocalStorage` چطوری می‌تونه بفهمه باید مقدار درست رو برگردونه؟
 
+اینجا هم جاوا اسکریپت سینگل‌ترد هست ولی محیطمون داخلش همزمانی وجود داره، پس اگه بخوایم از یک
+متغییر گلوبال استفاده کنیم ممکنه همزمان پیش بیاد.
+همچنین مثل ری‌اکت ما چیزی مثل کامپوننت نداریم که بدونیم کی
+enter شد و exit شد تا در زمان مناسب مقدار مناسبی توی متغییر گلوبال ذخیره کنیم.
 
+یادمون باشه اینجا همزمانی وجود داره ولی این همزمانی فقط برای کارهای IO است.
+یعنی اگه یک کار sync داریم انجام می‌دیم، هیچ کار sync دیگه‌ای انجام نمیشه.
+
+همینطور هر ریکو‌‌يست یک task به صورت async یا یک Promise درست می‌کنه.
+
+خب حالا اگه به یک طریقی بفهمیم در یک لحظه CPU دست کدوم
+Promise هست، میتونیم اینو پیاده سازی کنیم.
+
+انجین‌های مختلفی برای جاوااسکریپت هست که یکیش v8 هست.
+این انجین به ما یه چیزی به نام PromiseHooks بهمون میده، خیلی خلاصه و ساده
+هر وقت یک Promise شروع میکنه به یک کار IO
+و ایونت‌لوپ میاد تا وقتی کار IO تموم میشه یک Promise
+دیگه‌رو جلو می‌بره، می‌تونیم هوک‌مون رو صدا بزنیم.
+پس عملا می‌تونیم بفهمیم که یک promise داره
+enter می‌شه و کی اون داره
+exit می‌شه.
+
+این درخت عملا چیزی مثل call stack هست 
+ولی برای promise task ها.
+که اگه یک تسک داخل یک تسک اجرا بشه اینجا درختشو داریم.
+
+حالا توی `run` کافیه توی
+promise فعلی مقداری که میخوایم رو ذخیره کنیم
+و هر وقت خواستیم مقدار رو پایین‌تر بخونیم کافیه درخت رو پیمایش کنیم و بریم تا وقتی که به مقداری که می‌خوایم برسیم:
+
+[اینجا](https://github.com/supabase/edge-runtime/blob/main/crates/node/polyfills/internal/async_hooks.ts) می‌تونید یک پیاده‌سازی کامل از AsyncLocalStorage رو ببینید.
 
 ## Thread-local storage داخل سیستم عامل
 توی AsyncLocalStorage فهمیدیم پیاده‌سازیش از این فرض که
 جاوا‌اسکریپت سینگل‌ترد هست استفاده می‌کنه که اون متغییر استاتیک رو آپدیت نگه‌داره. حالا اگه برنام‌مون توی یک زبانی باشه
 که بشه مولتی‌ترد کار کرد چی. اینو باید چیکار کنیم؟!
 
+به کد C زیر نگاه کنید:
+
+```c
+#include <stdio.h>
+#include <pthread.h>
+
+__thread int counter;
+
+void* thread_function(void* arg) {
+    counter = (int)(size_t)arg;
+    printf("Thread %d: counter = %d\n", (int)(size_t)arg, counter);
+    return NULL;
+}
+
+int main() {
+    pthread_t threads[2];
+
+    pthread_create(&threads[0], NULL, thread_function, (void*)1);
+    pthread_create(&threads[1], NULL, thread_function, (void*)2);
+
+    pthread_join(threads[0], NULL);
+    pthread_join(threads[1], NULL);
+
+    return 0;
+}
+```
+
+توی مثال بالا با اینکه دوتا ترد دارن یک متغییر گلوبال رو می‌خونن ولی مشکل data-race بوجود نمیاد.
+چرا؟ چون این متغییر گلوبال به صورت Thread-local storage تعریف شده.
+که خب توی زبان c میشه یک استاتیک با پی‌شوند `__thread` تبدیل به `TLS` کرد.
+
+پیاده‌سازی های مختلفی از TLS هست که یکیش مال pthread ئه.
+چیکار می‌کنه؟
+
+TODO:
+
+توضیحات کامل‌ترشو می‌تونید توی [این](https://www.akkadia.org/drepper/tls.pdf) مقاله بخونید.
 
 
 ## نتیجه‌گیری
+
+
+TODO:
