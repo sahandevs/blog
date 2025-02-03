@@ -1,1 +1,0 @@
-{"version":3,"file":"component---src-pages-index-tsx-598c6d4faa85a670f219.js","mappings":"sHASA,UANkB,WAChB,OACE","sources":["webpack://blog/./src/pages/index.tsx"],"sourcesContent":["import * as React from \"react\"\n\n// markup\nconst IndexPage = () => {\n  return (\n    <p>Nothing is here</p>\n  )\n}\n\nexport default IndexPage\n"],"names":[],"sourceRoot":""}
