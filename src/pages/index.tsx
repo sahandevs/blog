@@ -25,11 +25,11 @@ const Categories: Posts = [
         title: "JIT Compiler چیه و چطور کار می‌کنه؟ - قسمت ۴",
         link: "/v8-jit",
       },
-      {
-        title: " جادوی Context",
-        link: "/context-magic",
-        badge: " جدیدترین | در دست نگارش",
-      },
+      // {
+      //   title: " جادوی Context",
+      //   link: "/context-magic",
+      //   badge: " جدیدترین | در دست نگارش",
+      // },
     ],
   },
   {
