@@ -37,7 +37,7 @@ const Categories: Posts = [
     posts: [
       {
         title: "کنترل کردن USB Switcher با موبایل",
-        link: "/usb-switcher"
+        link: "/usb-switcher",
       },
     ],
   },
@@ -47,6 +47,15 @@ const Categories: Posts = [
       {
         title: "چالش های پیاده سازی ratelimiter برای یک CDN - قسمت ۱",
         link: "/ratelimit-p1",
+      },
+    ],
+  },
+  {
+    categoryTitle: "نوشته‌های کوتاه",
+    posts: [
+      {
+        title: "چطوری حافظه فعال جلوی کار کردنمون رو می‌گیره",
+        link: "/working-memory",
       },
     ],
   },
