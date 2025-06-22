@@ -59,6 +59,16 @@ const Categories: Posts = [
       },
     ],
   },
+  {
+    categoryTitle: 'زنده!',
+    posts: [
+      {
+        title: "بازی‌های آنلاینی که بازی کردم!",
+        link: "/mp-games",
+        badge: "۱۰ خرداد ۱۴۰۴"
+      }
+    ]
+  }
 ];
 
 // markup
