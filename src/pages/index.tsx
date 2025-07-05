@@ -60,16 +60,71 @@ const Categories: Posts = [
     ],
   },
   {
-    categoryTitle: 'زنده!',
+    categoryTitle: "زنده!",
     posts: [
       {
         title: "بازی‌های آنلاینی که بازی کردم!",
         link: "/mp-games",
-        badge: "۱۰ خرداد ۱۴۰۴"
-      }
-    ]
-  }
+        badge: "۱۰ خرداد ۱۴۰۴",
+      },
+    ],
+  },
 ];
+
+const Music = () => {
+
+  return (
+    <div style={{ flex: 2 }}>
+    <h3>آخرین آهنگ</h3>
+    <br />
+    <ul>
+      <iframe
+        width="100%"
+        height="166"
+        scrolling="no"
+        frameBorder="no"
+        allow="autoplay"
+        src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/2124685263&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
+      ></iframe>
+      <div
+        style={{
+          fontSize: 10,
+          color: "#cccccc",
+          lineBreak: "anywhere",
+          wordBreak: "normal",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
+          fontFamily:
+            "font-family: Interstate,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif",
+          fontWeight: 100,
+        }}
+      >
+        <a
+          href="https://soundcloud.com/on-a-whim-music"
+          title="on a whim"
+          target="_blank"
+          style={{ color: "#cccccc", textDecoration: "none" }}
+        >
+          on a whim
+        </a>{" "}
+        ·{" "}
+        <a
+          href="https://soundcloud.com/on-a-whim-music/jire"
+          title="Jire"
+          target="_blank"
+          style={{
+            color: "#cccccc",
+            textDecoration: "none",
+          }}
+        >
+          Jire
+        </a>
+      </div>
+    </ul>
+  </div>
+  )
+}
 
 // markup
 const IndexPage = () => {
@@ -83,12 +138,18 @@ const IndexPage = () => {
         <a href="https://t.me/sahandevs_ir">Telegram</a>
         <p>|</p>
         <a href="https://www.linkedin.com/in/sahandakbarzadeh/">Linkedin</a>
+        <p>|</p>
+        <a href="https://soundcloud.com/on-a-whim-music">Soundcloud</a>
       </div>
 
       <div className="post-list-container">
         {Categories.map((cat, i) => (
           <Category key={i} {...cat} />
         ))}
+        <div className="category-container"></div>
+        <Music />
+        <div className="category-container"></div>
+        <div className="category-container"></div>
       </div>
     </>
   );
