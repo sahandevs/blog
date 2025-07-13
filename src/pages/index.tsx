@@ -72,59 +72,22 @@ const Categories: Posts = [
 ];
 
 const Music = () => {
-
   return (
     <div style={{ flex: 2 }}>
-    <h3>آخرین آهنگ</h3>
-    <br />
-    <ul>
-      <iframe
-        width="100%"
-        height="166"
-        scrolling="no"
-        frameBorder="no"
-        allow="autoplay"
-        src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/2124685263&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
-      ></iframe>
-      <div
-        style={{
-          fontSize: 10,
-          color: "#cccccc",
-          lineBreak: "anywhere",
-          wordBreak: "normal",
-          overflow: "hidden",
-          whiteSpace: "nowrap",
-          textOverflow: "ellipsis",
-          fontFamily:
-            "font-family: Interstate,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif",
-          fontWeight: 100,
-        }}
-      >
-        <a
-          href="https://soundcloud.com/on-a-whim-music"
-          title="on a whim"
-          target="_blank"
-          style={{ color: "#cccccc", textDecoration: "none" }}
-        >
-          on a whim
-        </a>{" "}
-        ·{" "}
-        <a
-          href="https://soundcloud.com/on-a-whim-music/jire"
-          title="Jire"
-          target="_blank"
-          style={{
-            color: "#cccccc",
-            textDecoration: "none",
-          }}
-        >
-          Jire
-        </a>
-      </div>
-    </ul>
-  </div>
-  )
-}
+      <h3>آخرین آهنگ</h3>
+      <br />
+      <ul>
+        <iframe
+          width="100%"
+          height={300}
+          scrolling="no"
+          frameBorder="no"
+          src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/2050465908&color=%23ff5500&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"
+        />
+      </ul>
+    </div>
+  );
+};
 
 // markup
 const IndexPage = () => {
