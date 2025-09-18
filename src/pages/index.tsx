@@ -67,6 +67,11 @@ const Categories: Posts = [
         link: "/mp-games",
         badge: "۱۰ خرداد ۱۴۰۴",
       },
+       {
+        title: "بلاگ پست های جالبی که خوندم",
+        link: "/posts-ive-read",
+        badge: "۲۷ شهریور ۱۴۰۴",
+      },
     ],
   },
 ];
