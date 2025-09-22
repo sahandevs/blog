@@ -70,7 +70,7 @@ const Categories: Posts = [
        {
         title: "بلاگ پست های جالبی که خوندم",
         link: "/posts-ive-read",
-        badge: "۲۷ شهریور ۱۴۰۴",
+        badge: "۳۱ شهریور ۱۴۰۴",
       },
     ],
   },
